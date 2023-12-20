@@ -25,6 +25,7 @@ class DeviceAddr(QMainWindow):
         self.ui.tableWidget.setColumnWidth(3, 92)
         # self.ui.tableWidget.setColumnCount(4)
         # self.ui.tableWidget.setRowCount(60)
+        # print(self.ui.tableWidget.rowCount())
         self.ui.ComButton.clicked.connect(self.filter_COM)
         self.ui.DeviceButton.clicked.connect(self.filter_device)
         self.ui.AllButton.clicked.connect(self.all_addr)
@@ -39,17 +40,17 @@ class DeviceAddr(QMainWindow):
         if data:
             for row, row_data in enumerate(data):
                 # print(row, row_data)
-                button = QPushButton("复制地址")
+                button = QPushButton("复制地址", self)
                 button.clicked.connect(self.copy_address)
                 self.ui.tableWidget.setCellWidget(row, 3, button)
                 for col, (key, value) in enumerate(row_data.items()):
                     print(col, key, value)
-                    item = QTableWidgetItem(str(value))
-                    self.ui.tableWidget.setItem(row, col, item)
-        else:
-            # 如果数据为None，清空表格
-            print("清空表格")
-            self.ui.tableWidget.setRowCount(0)
+                    value_item = QTableWidgetItem(str(value))
+                    col_item = QTableWidgetItem(str(row + 1))
+                    value_name_item = QTableWidgetItem(str(key))
+                    self.ui.tableWidget.setItem(row, col, col_item)
+                    self.ui.tableWidget.setItem(row, col + 1, value_name_item)
+                    self.ui.tableWidget.setItem(row, col + 2, value_item)
 
     def filter_COM(self):
         """
@@ -65,9 +66,9 @@ class DeviceAddr(QMainWindow):
         """
         self.setup_table(pyvisa_addr.resource_addr_desc())
         # self.setup_table([
-        #     {"A": 10},
-        #     {"B": 20},
-        #     {"C": 30}
+        #     {"D": 40},
+        #     {"E": 50},
+        #     {"F": 60}
         # ])
 
     def all_addr(self):
@@ -75,28 +76,32 @@ class DeviceAddr(QMainWindow):
         展示所有设备，传到表格函数中展示
         :return:
         """
-        # all_addr = pyvisa_addr.resource_addr_desc() + serial_addr.get_port_desc()
-        # self.setup_table(all_addr)
-        self.setup_table([
-            {"A": 10},
-            {"B": 20},
-            {"C": 30}
-        ])
+        all_addr = pyvisa_addr.resource_addr_desc() + serial_addr.get_port_desc()
+        self.setup_table(all_addr)
+        # self.setup_table([
+        #     {"A": 10},
+        #     {"B": 20},
+        #     {"C": 30}
+        # ])
 
     def copy_address(self):
         """
         复制地址到剪切板
         :return:
         """
-        button = self.ui.sender()
+        button = self.sender()
+        # print(button)
         if button:
             row = self.ui.tableWidget.indexAt(button.pos()).row()
             address = self.ui.tableWidget.item(row, 2).text()
+            # print(address)
             QApplication.clipboard().setText(address)
+
 
 if __name__ == '__main__':
     QApplication.setAttribute(Qt.AA_ShareOpenGLContexts, True)
     app = QApplication(sys.argv)
+    app.setStyle('Fusion')
     stats = DeviceAddr()
     stats.ui.show()
     app.exec()
