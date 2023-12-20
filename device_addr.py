@@ -29,7 +29,8 @@ class DeviceAddr(QMainWindow):
         self.ui.ComButton.clicked.connect(self.filter_COM)
         self.ui.DeviceButton.clicked.connect(self.filter_device)
         self.ui.AllButton.clicked.connect(self.all_addr)
-        self.setup_table()
+        self.all_addr()
+        # self.setup_table()
 
     def setup_table(self, data=None):
         """
@@ -64,25 +65,25 @@ class DeviceAddr(QMainWindow):
         筛选出pyvisa设备，传到表格函数中展示
         :return:
         """
-        self.setup_table(pyvisa_addr.resource_addr_desc())
-        # self.setup_table([
-        #     {"D": 40},
-        #     {"E": 50},
-        #     {"F": 60}
-        # ])
+        # self.setup_table(pyvisa_addr.resource_addr_desc())
+        self.setup_table([
+            {"D": 40},
+            {"E": 50},
+            {"F": 60}
+        ])
 
     def all_addr(self):
         """
         展示所有设备，传到表格函数中展示
         :return:
         """
-        all_addr = pyvisa_addr.resource_addr_desc() + serial_addr.get_port_desc()
-        self.setup_table(all_addr)
-        # self.setup_table([
-        #     {"A": 10},
-        #     {"B": 20},
-        #     {"C": 30}
-        # ])
+        # all_addr = pyvisa_addr.resource_addr_desc() + serial_addr.get_port_desc()
+        # self.setup_table(all_addr)
+        self.setup_table([
+            {"A": 10},
+            {"B": 20},
+            {"C": 30}
+        ])
 
     def copy_address(self):
         """
