@@ -8,7 +8,7 @@
 import pyvisa as visa
 
 
-def resource_addr_desc() -> tuple:
+def resource_addr_desc() -> list:
     """
     获取可用资源对应的描述与对应的地址
     """
@@ -19,4 +19,4 @@ def resource_addr_desc() -> tuple:
             rm.open_resource(resource).query('*IDN?'): resource,
         }
         resource_list.append(resource_dict)
-    return tuple(resource_list)
+    return list(resource_list)

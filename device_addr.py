@@ -6,13 +6,15 @@
 # @Software: PyCharm
 import sys
 from tool import pyvisa_addr, serial_addr
-from PySide6.QtWidgets import QApplication, QPushButton
+from PySide6.QtWidgets import QApplication, QPushButton, QTableWidgetItem, QMainWindow
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt
 
 
-class DeviceAddr:
+class DeviceAddr(QMainWindow):
     def __init__(self):
+        super().__init__()
         self.ui = QUiLoader().load('ui/mian_window.ui')
         self.ui.setWindowIcon(QIcon('ui/image/DeviceAddr.png'))
         self.ui.setFixedSize(self.ui.width(), self.ui.height())
@@ -21,23 +23,80 @@ class DeviceAddr:
         self.ui.tableWidget.setColumnWidth(1, 210)
         self.ui.tableWidget.setColumnWidth(2, 210)
         self.ui.tableWidget.setColumnWidth(3, 92)
-        # self.ui.AllButton.clicked.connect(pyvisa_addr.resource_addr_desc)
-        # self.ui.ComButton.clicked.connect(serial_addr.get_port_desc)
-        # self.ui.show()
-        # Add a QPushButton in the third column of each row
-        for row in range(self.ui.tableWidget.rowCount()):
-            button = QPushButton("复制地址")
-            # button.clicked.connect(self.copy_address)
-            self.ui.tableWidget.setCellWidget(row, 3, button)
+        # self.ui.tableWidget.setColumnCount(4)
+        # self.ui.tableWidget.setRowCount(60)
+        self.ui.ComButton.clicked.connect(self.filter_COM)
+        self.ui.DeviceButton.clicked.connect(self.filter_device)
+        self.ui.AllButton.clicked.connect(self.all_addr)
+        self.setup_table()
 
-    # def pyvisa_addr(self):
-    #     self.ui.textBrowser.setText(str(pyvisa_addr.resource_addr_desc()))
-    #
-    # def serial_addr(self):
-    #     self.ui.textBrowser.setText(str(serial_addr.get_port_desc()))
+    def setup_table(self, data=None):
+        """
+        设置表格,传入数据,显示数据，如果数据为None，清空表格
+        :param data:需要显示的数据
+        :return:
+        """
+        if data:
+            for row, row_data in enumerate(data):
+                # print(row, row_data)
+                button = QPushButton("复制地址")
+                button.clicked.connect(self.copy_address)
+                self.ui.tableWidget.setCellWidget(row, 3, button)
+                for col, (key, value) in enumerate(row_data.items()):
+                    print(col, key, value)
+                    item = QTableWidgetItem(str(value))
+                    self.ui.tableWidget.setItem(row, col, item)
+        else:
+            # 如果数据为None，清空表格
+            print("清空表格")
+            self.ui.tableWidget.setRowCount(0)
 
+    def filter_COM(self):
+        """
+        筛选出串口设备，传到表格函数中展示
+        :return:
+        """
+        self.setup_table(serial_addr.get_port_desc())
 
-app = QApplication(sys.argv)
-stats = DeviceAddr()
-stats.ui.show()
-app.exec()
+    def filter_device(self):
+        """
+        筛选出pyvisa设备，传到表格函数中展示
+        :return:
+        """
+        self.setup_table(pyvisa_addr.resource_addr_desc())
+        # self.setup_table([
+        #     {"A": 10},
+        #     {"B": 20},
+        #     {"C": 30}
+        # ])
+
+    def all_addr(self):
+        """
+        展示所有设备，传到表格函数中展示
+        :return:
+        """
+        # all_addr = pyvisa_addr.resource_addr_desc() + serial_addr.get_port_desc()
+        # self.setup_table(all_addr)
+        self.setup_table([
+            {"A": 10},
+            {"B": 20},
+            {"C": 30}
+        ])
+
+    def copy_address(self):
+        """
+        复制地址到剪切板
+        :return:
+        """
+        button = self.ui.sender()
+        if button:
+            row = self.ui.tableWidget.indexAt(button.pos()).row()
+            address = self.ui.tableWidget.item(row, 2).text()
+            QApplication.clipboard().setText(address)
+
+if __name__ == '__main__':
+    QApplication.setAttribute(Qt.AA_ShareOpenGLContexts, True)
+    app = QApplication(sys.argv)
+    stats = DeviceAddr()
+    stats.ui.show()
+    app.exec()

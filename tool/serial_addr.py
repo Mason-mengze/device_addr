@@ -8,7 +8,7 @@
 import serial.tools.list_ports
 
 
-def get_port_desc() -> tuple:
+def get_port_desc() -> list:
     """
     获取可用串口对应的描述与对应的地址
     """
@@ -20,4 +20,4 @@ def get_port_desc() -> tuple:
         }
         ports_list.append(port_dict)
 
-    return tuple(ports_list)
+    return list(ports_list)
