@@ -19,5 +19,8 @@ def get_port_desc() -> list:
             port.description: port.device,
         }
         ports_list.append(port_dict)
+    return ports_list
 
-    return list(ports_list)
+
+if __name__ == '__main__':
+    print(get_port_desc())
