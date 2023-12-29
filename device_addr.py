@@ -5,6 +5,7 @@
 # @File    : device_addr.py
 # @Software: PyCharm
 import sys
+import pyvisa_py
 from tool import pyvisa_addr, serial_addr
 from PySide6.QtWidgets import QApplication, QPushButton, QTableWidgetItem, QMainWindow
 from PySide6.QtUiTools import QUiLoader
@@ -21,7 +22,7 @@ class DeviceAddr(QMainWindow):
         self.ui = QUiLoader().load('ui/mian_window.ui')  # 加载ui文件
         self.ui.setWindowIcon(QIcon('ui/image/DeviceAddr.png'))  # 设置窗口图标
         self.ui.setFixedSize(self.ui.width(), self.ui.height())  # 设置窗口大小,不可以全屏化
-        self.ui.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section{background:skyblue;}")   # 设置表头样式
+        self.ui.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section{background:skyblue;}")  # 设置表头样式
         # 设置表格每列列宽
         self.ui.tableWidget.setColumnWidth(0, 50)
         self.ui.tableWidget.setColumnWidth(1, 210)
@@ -73,13 +74,13 @@ class DeviceAddr(QMainWindow):
         :return:
         """
         # 展示pyvisa设备
-        # self.setup_table(pyvisa_addr.resource_addr_desc())
-        self.setup_table([
-            {"D": 40},
-            {"E": 50},
-            {"F": 60},
-            {"G": 70}
-        ])
+        self.setup_table(pyvisa_addr.resource_addr_desc())
+        # self.setup_table([
+        #     {"D": 40},
+        #     {"E": 50},
+        #     {"F": 60},
+        #     {"G": 70}
+        # ])
 
     def all_addr(self):
         """
@@ -87,13 +88,13 @@ class DeviceAddr(QMainWindow):
         :return:
         """
         # 展示串口设别与pyvisa全部设备
-        # all_addr = pyvisa_addr.resource_addr_desc() + serial_addr.get_port_desc()
-        # self.setup_table(all_addr)
-        self.setup_table([
-            {"A": 10},
-            {"B": 20},
-            {"C": 30}
-        ])
+        all_addr = pyvisa_addr.resource_addr_desc() + serial_addr.get_port_desc()
+        self.setup_table(all_addr)
+        # self.setup_table([
+        #     {"A": 10},
+        #     {"B": 20},
+        #     {"C": 30}
+        # ])
 
     def copy_address(self):
         """

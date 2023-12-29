@@ -14,11 +14,14 @@ def resource_addr_desc() -> list:
     """
     rm = visa.ResourceManager()
     resource_list = []
+    # print(f'资源数量:{len(rm.list_resources())}')
     for index, resource in enumerate(rm.list_resources()):
-        print(f'resource:{resource}')
+        # print(f'resource:{resource}')
         try:
+            res = rm.open_resource(resource)
+            res.timeout = 500   # 设置超时时间
             resource_dict = {
-                rm.open_resource(resource).query('*IDN?'): resource,
+                res.query('*IDN?'): resource,
             }
         except visa.VisaIOError:
             # 处理未能识别的仪器
