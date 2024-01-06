@@ -22,6 +22,9 @@ class DeviceAddr(QMainWindow):
         self.ui = QUiLoader().load('ui/mian_window.ui')  # 加载ui文件
         self.setWindowIcon(QIcon('ui/image/DeviceAddr.png'))  # 设置窗口图标
         self.ui.setFixedSize(self.ui.width(), self.ui.height())  # 设置窗口大小,不可以全屏化
+        # 禁止最大化按钮
+        self.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
+        # 设置表格样式
         self.ui.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section{background:skyblue;}")  # 设置表头样式
         # 设置表格每列列宽
         self.ui.tableWidget.setColumnWidth(0, 50)
