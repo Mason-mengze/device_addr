@@ -19,8 +19,32 @@ class DeviceAddr(QMainWindow):
         初始化,加载ui文件,设置窗口图标,设置窗口大小,设置表格样式,设置表格列宽,设置按钮点击事件,启动时设置默认展示全部设备
         """
         super(DeviceAddr, self).__init__()
+        # 创建系统托盘对象
+        self.tray_icon = QSystemTrayIcon(self)
         self.ui = QUiLoader().load('ui/mian_window.ui')  # 加载ui文件
-        self.setWindowIcon(QIcon('ui/image/DeviceAddr.png'))  # 设置窗口图标
+        self.ui_set()   # ui设置
+        self.button_set()   # 设置按钮点击事件
+        # 启动时设置默认展示全部设备
+        self.all_addr()
+        # 托盘图标事件
+        self.tray_affairs()
+
+    def button_set(self):
+        """
+        设置按钮点击事件
+        :return:
+        """
+        # 设置按钮点击事件
+        self.ui.ComButton.clicked.connect(self.filter_COM)
+        self.ui.DeviceButton.clicked.connect(self.filter_device)
+        self.ui.AllButton.clicked.connect(self.all_addr)
+
+    def ui_set(self):
+        """
+        设置窗口图标,设置窗口大小,设置表格样式,设置表格列宽等UI设置
+        :return:
+        """
+        self.setWindowIcon(QIcon('ui/image/DeviceAddr.ico'))  # 设置窗口图标
         self.ui.setFixedSize(self.ui.width(), self.ui.height())  # 设置窗口大小,不可以全屏化
         # 禁止最大化按钮
         self.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
@@ -31,20 +55,17 @@ class DeviceAddr(QMainWindow):
         self.ui.tableWidget.setColumnWidth(1, 210)
         self.ui.tableWidget.setColumnWidth(2, 210)
         self.ui.tableWidget.setColumnWidth(3, 92)
-        # 设置按钮点击事件
-        self.ui.ComButton.clicked.connect(self.filter_COM)
-        self.ui.DeviceButton.clicked.connect(self.filter_device)
-        self.ui.AllButton.clicked.connect(self.all_addr)
         self.setCentralWidget(self.ui)  # 设置窗口中心控件
-        # 启动时设置默认展示全部设备
-        self.all_addr()
-        # 创建系统托盘图标
-        self.tray_icon = QSystemTrayIcon(self)
-        self.tray_icon.setIcon(QIcon('ui/image/DeviceAddr.png'))  # 设置图标
 
+    def tray_affairs(self):
+        """
+        托盘图标事件
+        :return:
+        """
+        self.tray_icon.setIcon(QIcon('ui/image/DeviceAddr.ico'))  # 设置图标
         # 创建托盘图标的上下文菜单，设置右键点击
         quit_action = QAction("退出", self)
-        quit_action.triggered.connect(app.quit)
+        quit_action.triggered.connect(app.quit)  # 点击托盘退出按钮，退出程序
         tray_menu = QMenu()
         tray_menu.addAction(quit_action)
         self.tray_icon.setContextMenu(tray_menu)
@@ -126,7 +147,6 @@ class DeviceAddr(QMainWindow):
         :return:
         """
         button = self.sender()
-        # print(button)
         if button:
             # 如果点击则获取点击按钮所在行的地址
             row = self.ui.tableWidget.indexAt(button.pos()).row()
@@ -142,5 +162,3 @@ if __name__ == '__main__':
     stats = DeviceAddr()
     stats.show()
     app.exec()
-
-
