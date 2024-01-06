@@ -5,11 +5,11 @@
 # @File    : device_addr.py
 # @Software: PyCharm
 import sys
-import pyvisa_py
 from tool import pyvisa_addr, serial_addr
-from PySide6.QtWidgets import QApplication, QPushButton, QTableWidgetItem, QMainWindow
+from PySide6.QtWidgets import (QApplication, QPushButton, QTableWidgetItem,
+                               QMainWindow, QSystemTrayIcon, QMenu, QMessageBox)
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QAction, QCloseEvent
 from PySide6.QtCore import Qt
 
 
@@ -18,9 +18,9 @@ class DeviceAddr(QMainWindow):
         """
         初始化,加载ui文件,设置窗口图标,设置窗口大小,设置表格样式,设置表格列宽,设置按钮点击事件,启动时设置默认展示全部设备
         """
-        super().__init__()
+        super(DeviceAddr, self).__init__()
         self.ui = QUiLoader().load('ui/mian_window.ui')  # 加载ui文件
-        self.ui.setWindowIcon(QIcon('ui/image/DeviceAddr.png'))  # 设置窗口图标
+        self.setWindowIcon(QIcon('ui/image/DeviceAddr.png'))  # 设置窗口图标
         self.ui.setFixedSize(self.ui.width(), self.ui.height())  # 设置窗口大小,不可以全屏化
         self.ui.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section{background:skyblue;}")  # 设置表头样式
         # 设置表格每列列宽
@@ -32,8 +32,40 @@ class DeviceAddr(QMainWindow):
         self.ui.ComButton.clicked.connect(self.filter_COM)
         self.ui.DeviceButton.clicked.connect(self.filter_device)
         self.ui.AllButton.clicked.connect(self.all_addr)
+        self.setCentralWidget(self.ui)  # 设置窗口中心控件
         # 启动时设置默认展示全部设备
         self.all_addr()
+        # 创建系统托盘图标
+        self.tray_icon = QSystemTrayIcon(self)
+        self.tray_icon.setIcon(QIcon('ui/image/DeviceAddr.png'))  # 设置图标
+
+        # 创建托盘图标的上下文菜单，设置右键点击
+        quit_action = QAction("退出", self)
+        quit_action.triggered.connect(app.quit)
+        tray_menu = QMenu()
+        tray_menu.addAction(quit_action)
+        self.tray_icon.setContextMenu(tray_menu)
+        # 连接托盘图标的activated信号到self.tray_icon_activated方法
+        self.tray_icon.activated.connect(self.tray_icon_activated)
+        # 显示托盘图标
+        self.tray_icon.show()
+
+    def closeEvent(self, event):
+        """
+        重写窗口关闭事件，使其最小化到托盘而不是真正关闭
+        """
+        if self.tray_icon.isVisible():
+            self.hide()
+            event.ignore()
+
+    def tray_icon_activated(self, reason):
+        """
+        当托盘图标被激活（例如，用户双击了托盘图标）时调用此方法
+        """
+        if reason == QSystemTrayIcon.DoubleClick:
+            # 如果窗口是隐藏的，那么显示窗口
+            if self.isHidden():
+                self.show()
 
     def setup_table(self, data=None):
         """
@@ -75,12 +107,6 @@ class DeviceAddr(QMainWindow):
         """
         # 展示pyvisa设备
         self.setup_table(pyvisa_addr.resource_addr_desc())
-        # self.setup_table([
-        #     {"D": 40},
-        #     {"E": 50},
-        #     {"F": 60},
-        #     {"G": 70}
-        # ])
 
     def all_addr(self):
         """
@@ -90,11 +116,6 @@ class DeviceAddr(QMainWindow):
         # 展示串口设别与pyvisa全部设备
         all_addr = pyvisa_addr.resource_addr_desc() + serial_addr.get_port_desc()
         self.setup_table(all_addr)
-        # self.setup_table([
-        #     {"A": 10},
-        #     {"B": 20},
-        #     {"C": 30}
-        # ])
 
     def copy_address(self):
         """
@@ -108,7 +129,6 @@ class DeviceAddr(QMainWindow):
             row = self.ui.tableWidget.indexAt(button.pos()).row()
             # 复制所选的单元格内容到剪切板
             address = self.ui.tableWidget.item(row, 2).text()
-            # print(address)
             QApplication.clipboard().setText(address)
 
 
@@ -117,5 +137,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
     stats = DeviceAddr()
-    stats.ui.show()
+    stats.show()
     app.exec()
+
+
