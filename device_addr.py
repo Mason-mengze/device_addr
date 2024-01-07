@@ -9,8 +9,11 @@ from tool import pyvisa_addr, serial_addr
 from PySide6.QtWidgets import (QApplication, QPushButton, QTableWidgetItem,
                                QMainWindow, QSystemTrayIcon, QMenu, QMessageBox)
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtGui import QIcon, QAction, QCloseEvent
+from PySide6.QtGui import QIcon, QAction
 from PySide6.QtCore import Qt
+import os
+
+BAS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class DeviceAddr(QMainWindow):
@@ -21,9 +24,11 @@ class DeviceAddr(QMainWindow):
         super(DeviceAddr, self).__init__()
         # 创建系统托盘对象
         self.tray_icon = QSystemTrayIcon(self)
-        self.ui = QUiLoader().load('ui/mian_window.ui')  # 加载ui文件
-        self.ui_set()   # ui设置
-        self.button_set()   # 设置按钮点击事件
+        ui = os.path.join(BAS_DIR, 'ui/mian_window.ui')
+        self.icon = os.path.join(BAS_DIR, 'ui/image/DeviceAddr.ico')
+        self.ui = QUiLoader().load(ui)  # 加载ui文件
+        self.ui_set()  # ui设置
+        self.button_set()  # 设置按钮点击事件
         # 启动时设置默认展示全部设备
         self.all_addr()
         # 托盘图标事件
@@ -44,7 +49,8 @@ class DeviceAddr(QMainWindow):
         设置窗口图标,设置窗口大小,设置表格样式,设置表格列宽等UI设置
         :return:
         """
-        self.setWindowIcon(QIcon('ui/image/DeviceAddr.ico'))  # 设置窗口图标
+        self.setWindowIcon(QIcon(self.icon))  # 设置窗口图标
+        self.setWindowTitle('设备信息')  # 设置窗口标题
         self.ui.setFixedSize(self.ui.width(), self.ui.height())  # 设置窗口大小,不可以全屏化
         # 禁止最大化按钮
         self.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
@@ -62,7 +68,7 @@ class DeviceAddr(QMainWindow):
         托盘图标事件
         :return:
         """
-        self.tray_icon.setIcon(QIcon('ui/image/DeviceAddr.ico'))  # 设置图标
+        self.tray_icon.setIcon(QIcon(self.icon))  # 设置图标
         # 创建托盘图标的上下文菜单，设置右键点击
         quit_action = QAction("退出", self)
         quit_action.triggered.connect(app.quit)  # 点击托盘退出按钮，退出程序
@@ -84,7 +90,7 @@ class DeviceAddr(QMainWindow):
 
     def tray_icon_activated(self, reason):
         """
-        当托盘图标被激活（例如，用户双击了托盘图标）时调用此方法
+        当托盘图标被激活（用户双击了托盘图标）时调用此方法
         """
         if reason == QSystemTrayIcon.DoubleClick:
             # 如果窗口是隐藏的，那么显示窗口
